@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 let url = "https://api.github.com";
-const GITHUB_API_TOKEN = process.env.GITHUB_API_TOKEN;
+const GITHUB_API_TOKEN = process.env.REACT_APP_GITHUB_API_TOKEN;
 
 const App = () => {
   const [username, setUsername] = useState("");
