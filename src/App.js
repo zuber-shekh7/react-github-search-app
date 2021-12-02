@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import { Link, BrowserRouter as Router } from "react-router-dom";
 
-let url = "https://api.github.com";
-const GITHUB_API_TOKEN = process.env.REACT_APP_GITHUB_API_TOKEN;
+import { gitHubAPIClient } from "./apis/GitHubAPI";
 
 const App = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [data, setData] = useState(null);
 
@@ -14,42 +15,54 @@ const App = () => {
   };
 
   const fetchData = async (username) => {
-    const response = await fetch(`${url}/users/${username}`, {
-      headers: {
-        Authorization: `Token ${GITHUB_API_TOKEN}`,
-      },
-    });
-
-    if (response.ok) {
-      const json = await response.json();
-      setData(json);
+    setData(null);
+    setIsLoading(true);
+    try {
+      const response = await gitHubAPIClient.get(`/users/${username}`);
+      if (response.status === 200) {
+        setData(response.data);
+      }
+    } catch (err) {
+      setData(null);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (username === "") {
+      return;
+    }
     fetchData(username);
   };
 
   const renderData = () => {
-    if (data) {
-      return <h2>{data.name}</h2>;
+    if (data && isLoading === false) {
+      return (
+        <h2>
+          <Link to="/">{data.name}</Link>
+        </h2>
+      );
     } else {
       return <h2>No User Found</h2>;
     }
   };
   return (
-    <div>
-      <h1>GitHub Search App</h1>
-      <input
-        value={username}
-        type="search"
-        onChange={handleChange}
-        placeholder="Enter Username"
-      />
-      <button onClick={handleSubmit}>Submit</button>
-      {renderData()}
-    </div>
+    <Router>
+      <div>
+        <h1>GitHub Search App</h1>
+        <input
+          value={username}
+          type="text"
+          onChange={handleChange}
+          placeholder="Enter Username"
+        />
+        <button onClick={handleSubmit}>Submit</button>
+        {isLoading && <h2>Loading...</h2>}
+        {renderData()}
+      </div>
+    </Router>
   );
 };
 
