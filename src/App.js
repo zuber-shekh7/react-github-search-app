@@ -5,7 +5,7 @@ const GITHUB_API_TOKEN = process.env.REACT_APP_GITHUB_API_TOKEN;
 
 const App = () => {
   const [username, setUsername] = useState("");
-  const [data, setData] = useState([]);
+  const [data, setData] = useState(null);
 
   const handleChange = (e) => {
     if (e.target.value !== "") {
@@ -19,8 +19,11 @@ const App = () => {
         Authorization: `Token ${GITHUB_API_TOKEN}`,
       },
     });
-    const json = await response.json();
-    setData(json);
+
+    if (response.ok) {
+      const json = await response.json();
+      setData(json);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -32,7 +35,7 @@ const App = () => {
     if (data) {
       return <h2>{data.name}</h2>;
     } else {
-      return <h2>No Data Found</h2>;
+      return <h2>No User Found</h2>;
     }
   };
   return (
@@ -45,7 +48,7 @@ const App = () => {
         placeholder="Enter Username"
       />
       <button onClick={handleSubmit}>Submit</button>
-      {data && renderData()}
+      {renderData()}
     </div>
   );
 };
